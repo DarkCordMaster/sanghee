@@ -5,6 +5,7 @@ import MessageBubble from './MessageBubble'
 interface ChatScreenProps {
   messages: ChatMessage[]
   input: string
+  isSending: boolean
   statusText: string
   showInstallBanner: boolean
   offlinePreview: boolean
@@ -20,6 +21,7 @@ interface ChatScreenProps {
 export default function ChatScreen({
   messages,
   input,
+  isSending,
   statusText,
   showInstallBanner,
   offlinePreview,
@@ -123,17 +125,19 @@ export default function ChatScreen({
         <div className="flex-1 flex items-center bg-surface-3 rounded-full py-1 pr-1 pl-4">
           <input
             value={input}
+            disabled={isSending}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') onSend()
             }}
-            placeholder="상희한테 말 걸어보기..."
-            className="flex-1 bg-transparent border-none outline-none text-ink text-sm font-sans py-2 placeholder:text-muted-3"
+            placeholder={isSending ? '상희가 답장 중...' : '상희한테 말 걸어보기...'}
+            className="flex-1 bg-transparent border-none outline-none text-ink text-sm font-sans py-2 placeholder:text-muted-3 disabled:opacity-60"
           />
           <button
             onClick={onSend}
+            disabled={isSending}
             aria-label="전송"
-            className="w-9 h-9 rounded-full border-none bg-coral flex items-center justify-center cursor-pointer shrink-0 text-[oklch(0.12_0.02_260)]"
+            className="w-9 h-9 rounded-full border-none bg-coral flex items-center justify-center cursor-pointer shrink-0 text-[oklch(0.12_0.02_260)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2 21l21-9L2 3v7l15 2-15 2z" />

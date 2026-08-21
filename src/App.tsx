@@ -1,16 +1,11 @@
 import { useState } from 'react'
-import type { ChatMessage, ConversationHistoryItem, Screen, VoiceOption, VoiceState } from './types'
+import type { ConversationHistoryItem, Screen, VoiceOption, VoiceState } from './types'
+import { useChat } from './hooks/useChat'
 import OnboardingScreen from './components/OnboardingScreen'
 import ChatScreen from './components/ChatScreen'
 import VoiceScreen from './components/VoiceScreen'
 import SettingsScreen from './components/SettingsScreen'
 import SidebarDrawer from './components/SidebarDrawer'
-
-const INITIAL_MESSAGES: ChatMessage[] = [
-  { id: '1', from: 'sanghee', text: '왔어? ...뭐 보고 싶은 거 있어서 온 거 아니지.' },
-  { id: '2', from: 'user', text: '그냥 심심해서 왔지' },
-  { id: '3', from: 'sanghee', text: '심심하다고 아무나 붙잡는 거 아니거든. ...근데 뭐, 오늘은 시간 비어있으니까 있어줄게.' },
-]
 
 const HISTORY: ConversationHistoryItem[] = [
   { id: '1', title: '오늘, 새벽 산책 얘기', preview: '그니까 별 보러 가자매매', date: '오늘' },
@@ -29,8 +24,10 @@ function App() {
   const [screen, setScreen] = useState<Screen>('onboarding')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES)
-  const [input, setInput] = useState('')
+  // 채팅 메시지 목록/입력값/전송 상태와 /api/chat/message 호출은
+  // useChat 훅 안에 모아둠 (src/hooks/useChat.ts) — 화면 전환 같은 단순 UI 상태와
+  // 네트워크 요청이 얽힌 채팅 상태를 한 컴포넌트에 같이 두면 로직을 추적하기 어려워짐
+  const { messages, input, setInput, isSending, sendMessage, startNewConversation } = useChat()
 
   const [voiceState, setVoiceState] = useState<VoiceState>('listening')
 
@@ -40,13 +37,6 @@ function App() {
 
   const [installDismissed, setInstallDismissed] = useState(false)
   const [offlinePreview, setOfflinePreview] = useState(false)
-
-  const sendMessage = () => {
-    const text = input.trim()
-    if (!text) return
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), from: 'user', text }])
-    setInput('')
-  }
 
   const cycleVoiceState = () => {
     const order: VoiceState[] = ['listening', 'thinking', 'speaking']
@@ -67,6 +57,7 @@ function App() {
         <ChatScreen
           messages={messages}
           input={input}
+          isSending={isSending}
           statusText={offlinePreview ? '오프라인' : '온라인'}
           showInstallBanner={!installDismissed}
           offlinePreview={offlinePreview}
@@ -113,7 +104,7 @@ function App() {
         history={HISTORY}
         onClose={() => setSidebarOpen(false)}
         onStartNewConversation={() => {
-          setMessages([])
+          startNewConversation()
           setSidebarOpen(false)
         }}
         onOpenSettings={() => {
