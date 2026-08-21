@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body{margin:0;background:oklch(0.14 0.02 260);}
+  @keyframes bar-idle{0%,100%{transform:scaleY(0.3)}50%{transform:scaleY(0.6)}}
+  @keyframes bar-speak{0%,100%{transform:scaleY(0.25)}50%{transform:scaleY(1)}}
+  @keyframes dot-bounce{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-6px);opacity:1}}
+  @keyframes glow-pulse{0%,100%{opacity:0.5}50%{opacity:0.9}}
+  @keyframes banner-in{from{transform:translateY(-12px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes bubble-in{from{transform:translateY(6px);opacity:0}to{transform:translateY(0);opacity:1}}
+  [data-scroll]{scrollbar-width:none;}
+  [data-scroll]::-webkit-scrollbar{width:0;height:0;display:none;}
+</style>
+</helmet>
+
+<div style="width:100%;height:100vh;display:flex;justify-content:center;align-items:stretch;background:oklch(0.1 0.015 260);font-family:'Manrope',sans-serif;color:oklch(0.95 0.01 260);overflow:hidden">
+<div style="width:100%;max-width:480px;height:100%;position:relative;background:oklch(0.15 0.02 260);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,0.5)">
+
+<!-- ONBOARDING -->
+<sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:20px;background:radial-gradient(circle at 50% 30%, oklch(0.28 0.09 195 / 0.5), oklch(0.15 0.02 260) 60%)">
+  <div style="width:150px;height:150px;border-radius:50%;overflow:hidden;border:2px solid oklch(0.7 0.14 190 / 0.5);box-shadow:0 0 40px oklch(0.7 0.14 190 / 0.35)">
+    <image-slot id="char-portrait-onboarding" shape="circle" placeholder="상희 캐릭터 아트"></image-slot>
+  </div>
+  <div style="text-align:center;display:flex;flex-direction:column;gap:8px;margin-top:4px">
+    <div style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:40px;letter-spacing:-0.5px;color:oklch(0.95 0.01 260)">상희</div>
+    <div style="font-size:14px;color:oklch(0.68 0.02 260);font-weight:500">틱틱대지만, 결국 다 들어주는 애</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px">
+    <span style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:100px;background:oklch(0.7 0.14 190 / 0.15);color:oklch(0.78 0.13 190);border:1px solid oklch(0.7 0.14 190 / 0.3)">톰보이</span>
+    <span style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:100px;background:oklch(0.7 0.17 30 / 0.15);color:oklch(0.78 0.15 30);border:1px solid oklch(0.7 0.17 30 / 0.3)">상어이빨</span>
+    <span style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:100px;background:oklch(0.4 0.02 260 / 0.5);color:oklch(0.85 0.01 260);border:1px solid oklch(0.4 0.02 260)">츤데레</span>
+  </div>
+  <button onClick="{{ enterChat }}" style="margin-top:20px;width:100%;max-width:280px;padding:16px;border:none;border-radius:100px;background:oklch(0.7 0.14 190);color:oklch(0.12 0.02 260);font-weight:800;font-size:16px;font-family:'Manrope',sans-serif;cursor:pointer;box-shadow:0 8px 24px oklch(0.7 0.14 190 / 0.35)" style-hover="background:oklch(0.75 0.14 190)">대화 시작하기</button>
+  <button onClick="{{ enterVoiceFromOnboarding }}" style="border:none;background:none;color:oklch(0.65 0.02 260);font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:4px" style-hover="color:oklch(0.85 0.01 260)">음성으로 바로 시작</button>
+</div>
+</sc-if>
+
+<!-- CHAT -->
+<sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid oklch(0.25 0.02 260);flex-shrink:0;background:oklch(0.15 0.02 260)">
+    <button onClick="{{ openSidebar }}" aria-label="메뉴" style="background:none;border:none;padding:6px;cursor:pointer;color:oklch(0.85 0.01 260)" style-hover="color:oklch(0.7 0.14 190)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+    <div style="width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid oklch(0.7 0.14 190 / 0.5)">
+      <image-slot id="char-avatar-topbar" shape="circle" placeholder="상희"></image-slot>
+    </div>
+    <div style="display:flex;flex-direction:column;flex:1;min-width:0">
+      <div style="font-weight:800;font-size:15px;font-family:'Unbounded',sans-serif">상희</div>
+      <div style="display:flex;align-items:center;gap:5px">
+        <span style="width:6px;height:6px;border-radius:50%;background:{{ statusDotColor }};flex-shrink:0"></span>
+        <span style="font-size:11px;color:oklch(0.6 0.02 260);font-weight:600">{{ topbarStatusText }}</span>
+      </div>
+    </div>
+    <button onClick="{{ openSettings }}" aria-label="설정" style="background:none;border:none;padding:6px;cursor:pointer;color:oklch(0.75 0.01 260)" style-hover="color:oklch(0.7 0.14 190)">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+
+  <sc-if value="{{ showInstallBanner }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:oklch(0.7 0.14 190 / 0.1);border-bottom:1px solid oklch(0.7 0.14 190 / 0.25);animation:banner-in 0.3s ease-out">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.13 190)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    <div style="flex:1;font-size:12px;font-weight:600;color:oklch(0.85 0.02 260);line-height:1.4">홈 화면에 상희 추가하고 언제든 바로 만나기</div>
+    <button onClick="{{ installApp }}" style="border:none;background:oklch(0.7 0.14 190);color:oklch(0.12 0.02 260);font-size:12px;font-weight:800;padding:6px 12px;border-radius:100px;cursor:pointer;flex-shrink:0">추가</button>
+    <button onClick="{{ dismissInstallBanner }}" aria-label="닫기" style="background:none;border:none;color:oklch(0.55 0.02 260);cursor:pointer;padding:2px;flex-shrink:0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ offlinePreview }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:oklch(0.3 0.03 30 / 0.4);border-bottom:1px solid oklch(0.5 0.1 30 / 0.3)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.13 40)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12" y2="20"/></svg>
+    <span style="font-size:11.5px;font-weight:700;color:oklch(0.8 0.05 40)">오프라인 · 재연결 시도 중</span>
+  </div>
+  </sc-if>
+
+  <div data-scroll style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ messages }}" as="msg" hint-placeholder-count="4">
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-direction:{{ msg.rowDir }};animation:bubble-in 0.25s ease-out">
+        <sc-if value="{{ msg.isSanghee }}" hint-placeholder-val="{{ true }}">
+        <div style="width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0">
+          <image-slot id="char-avatar-msg" shape="circle" placeholder="상희"></image-slot>
+        </div>
+        </sc-if>
+        <div style="max-width:76%;padding:11px 15px;border-radius:{{ msg.radius }};background:{{ msg.bg }};color:{{ msg.color }};font-size:14.5px;line-height:1.5;font-weight:500">{{ msg.text }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid oklch(0.25 0.02 260);flex-shrink:0;background:oklch(0.15 0.02 260)">
+    <div style="flex:1;display:flex;align-items:center;background:oklch(0.22 0.02 260);border-radius:100px;padding:4px 4px 4px 16px">
+      <input value="{{ input }}" onChange="{{ onInputChange }}" onKeyDown="{{ onInputKeyDown }}" placeholder="상희한테 말 걸어보기..." style="flex:1;background:none;border:none;outline:none;color:oklch(0.95 0.01 260);font-size:14px;font-family:'Manrope',sans-serif;padding:8px 0"/>
+      <button onClick="{{ sendMessage }}" aria-label="전송" style="width:36px;height:36px;border-radius:50%;border:none;background:oklch(0.7 0.17 30);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:oklch(0.12 0.02 260)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+    <button onClick="{{ enterVoiceFromChat }}" aria-label="음성 모드" style="width:46px;height:46px;border-radius:50%;border:none;background:oklch(0.7 0.14 190);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:oklch(0.12 0.02 260);box-shadow:0 4px 14px oklch(0.7 0.14 190 / 0.4)">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<!-- VOICE MODE -->
+<sc-if value="{{ isVoice }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 25%, {{ voiceGlowColor }}, oklch(0.11 0.015 260) 65%)">
+  <div style="display:flex;align-items:center;gap:10px;padding:16px">
+    <button onClick="{{ exitVoiceToChat }}" aria-label="뒤로" style="background:none;border:none;padding:6px;cursor:pointer;color:oklch(0.85 0.01 260)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div style="width:26px;height:26px;border-radius:50%;overflow:hidden">
+      <image-slot id="char-avatar-voice" shape="circle" placeholder="상희"></image-slot>
+    </div>
+    <div style="font-weight:800;font-size:14px;font-family:'Unbounded',sans-serif">상희</div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:0 24px">
+    <div onClick="{{ interruptIfSpeaking }}" style="width:100%;max-width:300px;height:120px;border-radius:24px;border:1.5px solid {{ waveformBorder }};background:oklch(0.18 0.02 260 / 0.6);display:flex;align-items:center;justify-content:center;gap:5px;cursor:{{ waveformCursor }};position:relative;overflow:hidden">
+      <sc-if value="{{ isThinking }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 190);animation:dot-bounce 1s ease-in-out infinite;animation-delay:0s"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 190);animation:dot-bounce 1s ease-in-out infinite;animation-delay:0.15s"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:oklch(0.72 0.15 190);animation:dot-bounce 1s ease-in-out infinite;animation-delay:0.3s"></span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isBars }}" hint-placeholder-val="{{ true }}">
+        <sc-for list="{{ waveBars }}" as="bar" hint-placeholder-count="24">
+          <span style="width:4px;border-radius:3px;background:{{ bar.color }};height:{{ bar.height }};animation:{{ bar.anim }} {{ bar.duration }} ease-in-out infinite;animation-delay:{{ bar.delay }};transform-origin:center"></span>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ isSpeaking }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:oklch(0.1 0.02 260 / 0);opacity:0" class="interrupt-hint-overlay"></div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="font-family:'Unbounded',sans-serif;font-weight:700;font-size:19px;color:{{ statusTextColor }}">{{ voiceStatusLabel }}</div>
+      <sc-if value="{{ isSpeaking }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;color:oklch(0.6 0.02 260);font-weight:600">탭해서 끊기</div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:center;gap:20px;padding:28px 24px 40px">
+    <button onClick="{{ cycleVoiceState }}" style="border:1px solid oklch(0.35 0.02 260);background:none;color:oklch(0.7 0.02 260);font-size:12px;font-weight:700;padding:8px 14px;border-radius:100px;cursor:pointer">다음 상태 보기</button>
+    <button onClick="{{ exitVoiceToChat }}" aria-label="종료" style="width:58px;height:58px;border-radius:50%;border:none;background:oklch(0.7 0.17 30);display:flex;align-items:center;justify-content:center;cursor:pointer;color:oklch(0.12 0.02 260)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid oklch(0.25 0.02 260);flex-shrink:0">
+    <button onClick="{{ exitSettingsToChat }}" aria-label="뒤로" style="background:none;border:none;padding:6px;cursor:pointer;color:oklch(0.85 0.01 260)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div style="font-family:'Unbounded',sans-serif;font-weight:800;font-size:17px">설정</div>
+  </div>
+
+  <div data-scroll style="flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:28px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.5px;color:oklch(0.7 0.14 190);text-transform:uppercase">성격</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>틱틱거림 정도</span><span style="color:oklch(0.65 0.02 260)">{{ personality }}%</span></div>
+        <input type="range" min="0" max="100" value="{{ personality }}" onChange="{{ onPersonalityChange }}" style="width:100%;accent-color:oklch(0.7 0.14 190)"/>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>애정도</span><span style="color:oklch(0.65 0.02 260)">{{ affection }}%</span></div>
+        <input type="range" min="0" max="100" value="{{ affection }}" onChange="{{ onAffectionChange }}" style="width:100%;accent-color:oklch(0.7 0.17 30)"/>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.5px;color:oklch(0.7 0.14 190);text-transform:uppercase">목소리</div>
+      <sc-for list="{{ voiceOptions }}" as="v" hint-placeholder-count="3">
+        <button onClick="{{ v.onSelect }}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px;border:1.5px solid {{ v.borderColor }};background:{{ v.bg }};cursor:pointer;color:oklch(0.92 0.01 260);font-size:14px;font-weight:600;font-family:'Manrope',sans-serif">
+          <span>{{ v.label }}</span>
+          <sc-if value="{{ v.selected }}" hint-placeholder-val="{{ false }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.13 190)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </sc-if>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.5px;color:oklch(0.7 0.14 190);text-transform:uppercase">테마</div>
+      <div style="padding:13px 16px;border-radius:14px;background:oklch(0.2 0.02 260);font-size:13px;color:oklch(0.68 0.02 260);font-weight:500">다크 모드 고정 · 상희는 밤에 더 잘 어울려요</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.5px;color:oklch(0.7 0.14 190);text-transform:uppercase">앱</div>
+      <button onClick="{{ resetInstallBanner }}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px;background:oklch(0.2 0.02 260);border:none;cursor:pointer;color:oklch(0.92 0.01 260);font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;text-align:left">홈 화면 설치 안내 다시 보기</button>
+      <button onClick="{{ toggleOfflinePreview }}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px;background:oklch(0.2 0.02 260);border:none;cursor:pointer;color:oklch(0.92 0.01 260);font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;text-align:left">
+        <span>오프라인 모드 미리보기</span>
+        <span style="width:38px;height:22px;border-radius:100px;background:{{ offlineToggleBg }};position:relative;flex-shrink:0">
+          <span style="width:18px;height:18px;border-radius:50%;background:white;position:absolute;top:2px;left:{{ offlineToggleDotLeft }};transition:left 0.15s"></span>
+        </span>
+      </button>
+      <button onClick="{{ openSidebar }}" style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px;background:oklch(0.2 0.02 260);border:none;cursor:pointer;color:oklch(0.92 0.01 260);font-size:13.5px;font-weight:600;font-family:'Manrope',sans-serif;text-align:left">대화 기록 보기</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- SIDEBAR / HISTORY -->
+<sc-if value="{{ sidebarOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:40">
+  <div onClick="{{ closeSidebar }}" style="position:absolute;inset:0;background:oklch(0 0 0 / 0.55)"></div>
+  <div style="position:absolute;left:0;top:0;bottom:0;width:84%;max-width:340px;background:oklch(0.16 0.02 260);display:flex;flex-direction:column;box-shadow:8px 0 30px rgba(0,0,0,0.4)">
+    <div style="display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid oklch(0.25 0.02 260)">
+      <div style="width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0">
+        <image-slot id="char-avatar-sidebar" shape="circle" placeholder="상희"></image-slot>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:14.5px;font-family:'Unbounded',sans-serif">상희</div>
+        <div style="font-size:11px;color:oklch(0.6 0.02 260)">대화 기록</div>
+      </div>
+      <button onClick="{{ closeSidebar }}" aria-label="닫기" style="background:none;border:none;color:oklch(0.7 0.01 260);cursor:pointer;padding:4px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="padding:14px 16px">
+      <button onClick="{{ startNewConversation }}" style="width:100%;padding:11px;border-radius:12px;border:1.5px dashed oklch(0.7 0.14 190 / 0.5);background:oklch(0.7 0.14 190 / 0.08);color:oklch(0.78 0.13 190);font-weight:700;font-size:13px;cursor:pointer;font-family:'Manrope',sans-serif">+ 새 대화 시작</button>
+    </div>
+    <div data-scroll style="flex:1;overflow-y:auto;padding:0 10px 16px;display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ history }}" as="h" hint-placeholder-count="5">
+        <button onClick="{{ closeSidebar }}" style="display:flex;flex-direction:column;gap:3px;align-items:flex-start;padding:12px;border-radius:12px;border:none;background:none;cursor:pointer;text-align:left" style-hover="background:oklch(0.22 0.02 260)">
+          <div style="font-size:13px;font-weight:700;color:oklch(0.9 0.01 260)">{{ h.title }}</div>
+          <div style="font-size:11.5px;color:oklch(0.58 0.02 260);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px">{{ h.preview }}</div>
+          <div style="font-size:10.5px;color:oklch(0.45 0.02 260);margin-top:1px">{{ h.date }}</div>
+        </button>
+      </sc-for>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid oklch(0.25 0.02 260)">
+      <button onClick="{{ openSettingsFromSidebar }}" style="display:flex;align-items:center;gap:8px;background:none;border:none;color:oklch(0.65 0.02 260);font-size:12.5px;font-weight:600;cursor:pointer;padding:4px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        설정
+      </button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'onboarding',
+    sidebarOpen: false,
+    input: '',
+    voiceState: 'listening',
+    installDismissed: false,
+    offlinePreview: false,
+    personality: 70,
+    affection: 45,
+    voiceSelected: '허스키',
+    messages: [
+      { from: 'sanghee', text: '왔어? ...뭐 보고 싶은 거 있어서 온 거 아니지.' },
+      { from: 'user', text: '그냥 심심해서 왔지' },
+      { from: 'sanghee', text: '심심하다고 아무나 붙잡는 거 아니거든. ...근데 뭐, 오늘은 시간 비어있으니까 있어줄게.' },
+      { from: 'user', text: '고마워 상희' },
+      { from: 'sanghee', text: '고맙긴, 당연한 거 갖고. 그래서, 뭐 할 건데.' },
+    ],
+    history: [
+      { title: '오늘, 새벽 산책 얘기', preview: '그니까 별 보러 가자매매', date: '오늘' },
+      { title: '시험 망친 날', preview: '괜찮아, 다음에 잘하면 되지', date: '어제' },
+      { title: '라면 먹을까 말까', preview: '먹어. 왜 고민해', date: '3일 전' },
+      { title: '주말 계획', preview: '나랑 놀 거면서 뭘 물어봐', date: '지난주' },
+    ],
+  };
+
+  goTo(screen) { this.setState({ screen, sidebarOpen: false }); }
+  enterChat = () => this.goTo('chat');
+  enterVoiceFromOnboarding = () => this.setState({ screen: 'voice', voiceState: 'listening' });
+  enterVoiceFromChat = () => this.setState({ screen: 'voice', voiceState: 'listening' });
+  exitVoiceToChat = () => this.goTo('chat');
+  openSettings = () => this.goTo('settings');
+  openSettingsFromSidebar = () => this.goTo('settings');
+  exitSettingsToChat = () => this.goTo('chat');
+  openSidebar = () => this.setState({ sidebarOpen: true });
+  closeSidebar = () => this.setState({ sidebarOpen: false });
+  startNewConversation = () => this.setState({ sidebarOpen: false, messages: [] });
+
+  onInputChange = (e) => this.setState({ input: e.target.value });
+  onInputKeyDown = (e) => { if (e.key === 'Enter') this.sendMessage(); };
+  sendMessage = () => {
+    const text = this.state.input.trim();
+    if (!text) return;
+    const replies = ['뭐야 그게. ...알겠어, 신경 쓸게.', '어휴, 진짜. 알았다고.', '...그렇게까지 말하면 들어줘야지.', '됐고, 다음엔 미리 말해.'];
+    const reply = replies[Math.floor(Math.random() * replies.length)];
+    this.setState(s => ({
+      input: '',
+      messages: [...s.messages, { from: 'user', text }, { from: 'sanghee', text: reply }],
+    }));
+  };
+
+  dismissInstallBanner = () => this.setState({ installDismissed: true });
+  installApp = () => this.setState({ installDismissed: true });
+  resetInstallBanner = () => this.setState({ installDismissed: false, screen: 'chat' });
+  toggleOfflinePreview = () => this.setState(s => ({ offlinePreview: !s.offlinePreview }));
+
+  cycleVoiceState = () => {
+    const order = ['listening', 'thinking', 'speaking'];
+    this.setState(s => ({ voiceState: order[(order.indexOf(s.voiceState) + 1) % order.length] }));
+  };
+  interruptIfSpeaking = () => { if (this.state.voiceState === 'speaking') this.setState({ voiceState: 'listening' }); };
+
+  onPersonalityChange = (e) => this.setState({ personality: Number(e.target.value) });
+  onAffectionChange = (e) => this.setState({ affection: Number(e.target.value) });
+  selectVoice = (label) => this.setState({ voiceSelected: label });
+
+  renderVals() {
+    const s = this.state;
+    const teal = 'oklch(0.7 0.14 190)';
+    const coral = 'oklch(0.7 0.17 30)';
+
+    const statusMap = {
+      listening: { label: '듣는 중', color: teal, dot: teal, top: '듣고 있어요' },
+      thinking: { label: '생각하는 중', color: 'oklch(0.75 0.02 260)', dot: 'oklch(0.75 0.02 260)', top: '생각 중...' },
+      speaking: { label: '말하는 중', color: coral, dot: coral, top: '말하고 있어요' },
+    };
+    const vs = statusMap[s.voiceState];
+
+    const waveBars = Array.from({ length: 24 }, (_, i) => {
+      const isSpeak = s.voiceState === 'speaking';
+      return {
+        color: isSpeak ? coral : teal,
+        height: isSpeak ? `${30 + (i % 5) * 12}%` : `${20 + (i % 4) * 8}%`,
+        anim: isSpeak ? 'bar-speak' : 'bar-idle',
+        duration: isSpeak ? `${0.5 + (i % 4) * 0.1}s` : `${1.4 + (i % 3) * 0.2}s`,
+        delay: `${(i % 6) * 0.06}s`,
+      };
+    });
+
+    const voiceOptions = ['차분한 저음', '발랄한 미드톤', '허스키'].map(label => ({
+      label,
+      selected: s.voiceSelected === label,
+      borderColor: s.voiceSelected === label ? teal : 'oklch(0.28 0.02 260)',
+      bg: s.voiceSelected === label ? 'oklch(0.7 0.14 190 / 0.1)' : 'oklch(0.2 0.02 260)',
+      onSelect: () => this.selectVoice(label),
+    }));
+
+    return {
+      isOnboarding: s.screen === 'onboarding',
+      isChat: s.screen === 'chat',
+      isVoice: s.screen === 'voice',
+      isSettings: s.screen === 'settings',
+      isThinking: s.voiceState === 'thinking',
+      isBars: s.voiceState !== 'thinking',
+      isSpeaking: s.voiceState === 'speaking',
+      sidebarOpen: s.sidebarOpen,
+      enterChat: this.enterChat,
+      enterVoiceFromOnboarding: this.enterVoiceFromOnboarding,
+      enterVoiceFromChat: this.enterVoiceFromChat,
+      exitVoiceToChat: this.exitVoiceToChat,
+      openSettings: this.openSettings,
+      openSettingsFromSidebar: this.openSettingsFromSidebar,
+      exitSettingsToChat: this.exitSettingsToChat,
+      openSidebar: this.openSidebar,
+      closeSidebar: this.closeSidebar,
+      startNewConversation: this.startNewConversation,
+      input: s.input,
+      onInputChange: this.onInputChange,
+      onInputKeyDown: this.onInputKeyDown,
+      sendMessage: this.sendMessage,
+      statusDotColor: teal,
+      topbarStatusText: s.offlinePreview ? '오프라인' : '온라인',
+      showInstallBanner: !s.installDismissed,
+      installApp: this.installApp,
+      dismissInstallBanner: this.dismissInstallBanner,
+      resetInstallBanner: this.resetInstallBanner,
+      offlinePreview: s.offlinePreview,
+      toggleOfflinePreview: this.toggleOfflinePreview,
+      offlineToggleBg: s.offlinePreview ? teal : 'oklch(0.35 0.02 260)',
+      offlineToggleDotLeft: s.offlinePreview ? '18px' : '2px',
+      messages: s.messages.map(m => ({
+        isSanghee: m.from === 'sanghee',
+        rowDir: m.from === 'sanghee' ? 'row' : 'row-reverse',
+        bg: m.from === 'sanghee' ? 'oklch(0.22 0.02 260)' : coral,
+        color: m.from === 'sanghee' ? 'oklch(0.92 0.01 260)' : 'oklch(0.12 0.02 260)',
+        radius: m.from === 'sanghee' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
+        text: m.text,
+      })),
+      voiceGlowColor: s.voiceState === 'speaking' ? 'oklch(0.35 0.1 30 / 0.45)' : 'oklch(0.3 0.09 195 / 0.4)',
+      waveformBorder: vs.color + ' / 0.3',
+      waveformCursor: s.voiceState === 'speaking' ? 'pointer' : 'default',
+      waveBars,
+      voiceStatusLabel: vs.label,
+      statusTextColor: vs.color,
+      cycleVoiceState: this.cycleVoiceState,
+      interruptIfSpeaking: this.interruptIfSpeaking,
+      personality: s.personality,
+      affection: s.affection,
+      onPersonalityChange: this.onPersonalityChange,
+      onAffectionChange: this.onAffectionChange,
+      voiceOptions,
+      history: s.history,
+    };
+  }
+}
+</script>
+</body>
+</html>
