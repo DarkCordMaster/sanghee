@@ -28,6 +28,10 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<!-- 이 개발 환경(Windows, 기본 코드페이지 MS949)에서 javac가 .java 소스의 한글 리터럴을
+		     UTF-8이 아니라 플랫폼 기본 인코딩으로 읽어서 컴파일 시점에 깨지는 문제가 있어서 명시함 -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -102,6 +106,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
 				<executions>
 					<execution>
 						<id>default-compile</id>

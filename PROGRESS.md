@@ -20,10 +20,14 @@ _최종 업데이트: 2026-08-21_
 ### 백엔드 (`/backend`)
 - Spring Boot 4.0.8 + Java 17 + MyBatis + H2(파일 DB) 스캐폴딩 (Spring Initializr로 생성)
 - `POST /api/chat/message` 실제 구현
-  - `characters/sanghee.json`에 캐릭터 성격/말투(시스템 프롬프트) 분리
   - `chat_message` 테이블(H2)에 세션별 대화 저장, 최근 6턴만 불러와 프롬프트에 포함
   - 로컬 Ollama(`qwen3:8b`)에 `/api/chat`으로 요청, `think:false`로 응답 속도 70초대 → 8초대로 개선
   - CORS 설정(프록시 없이 직접 호출하는 경우 대비)
+- **캐릭터 정의를 JSON 파일 → `characters` 테이블(DB)로 이전**
+  - `basic_info`/`personality`/`speech_style`/`background`/`values_and_limits`/`hidden_context`/`speech_examples`/`closeness_style` 등 구조화된 필드로 저장
+  - 앱 첫 실행 시 `CharacterSeeder`(ApplicationRunner)가 테이블이 비어 있으면 상희 캐릭터 1건을 시딩 (data.sql 대신 코드로 시딩 — `spring.sql.init.mode=always`라 SQL INSERT를 쓰면 재시작마다 중복됨)
+  - `CharacterService`가 각 필드를 라벨 붙여 하나의 시스템 프롬프트로 조립
+  - `character_images` 테이블도 추가해뒀지만 아직 업로드/조회 기능은 없음 (스키마만)
 
 ### DB: MySQL 전환 사전 준비
 - `mysql-connector-j` 의존성 추가, `application-mysql.properties` 프로필 파일 작성
@@ -57,3 +61,7 @@ _최종 업데이트: 2026-08-21_
 - MyBatis starter가 아직 Spring Boot 4.1.x와 호환되지 않아서 백엔드는 **4.0.8**로 고정해둠 — 나중에 Boot 버전 올릴 때 MyBatis 호환 여부 먼저 확인 필요
 - qwen3는 기본적으로 "생각 모드"가 있는 하이브리드 추론 모델이라, 간단한 잡담에도 답하기 전에 오래 고민함 → `OllamaClient`에서 `think:false`로 꺼둔 상태. 더 똑똑한 답이 필요해지면 이 설정부터 의심할 것
 - H2는 파일 모드(`./backend/data/`)라 서버를 껐다 켜도 대화 기록이 남음 — 로컬 1인 개발 기준으로 별도 DB 서버 설치 없이 돌아가게 한 선택이라, 여러 명이 같이 쓰게 되면 MySQL/PostgreSQL 등으로 교체 검토 필요
+- **이 개발 환경(Windows, 기본 코드페이지 MS949)에서 한글 처리 시 주의할 점 두 가지**를 겪어서 기록해둠:
+  1. `.java` 소스 파일에 한글 문자열 리터럴을 직접 쓰면 javac가 플랫폼 기본 인코딩으로 읽어서 컴파일 시점에 깨짐 → `pom.xml`에 `project.build.sourceEncoding=UTF-8` + `maven-compiler-plugin`의 `<encoding>UTF-8</encoding>`을 명시해서 해결함
+  2. `.properties` 파일에 한글 값을 직접 쓰면 `java.util.Properties` 로더가 ISO-8859-1로 읽어서 깨짐(자바 스펙 자체의 동작) → 한글이 필요한 값은 `.properties`에 두지 말고 자바 상수로 두는 식으로 우회함 (`CharacterService.CHARACTER_NAME`)
+  - 참고로 `curl`/H2 콘솔 등 **터미널에 한글을 출력해서 눈으로 확인하는 방식은 신뢰하면 안 됨** — 콘솔 코드페이지 때문에 실제 데이터는 멀쩡해도 화면엔 깨져 보일 수 있음. 실제 API 응답(HTTP body)이나 애플리케이션 동작으로 검증하는 게 정확함
