@@ -64,6 +64,13 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<!-- MySQL로 전환할 때 쓸 드라이버. 지금은 기본 프로필이 H2라서 실제로는 안 쓰이고,
+			     application-mysql.properties(spring.profiles.active=mysql)를 켰을 때만 필요함 -->
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
