@@ -54,7 +54,8 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="w-full h-screen flex justify-center items-stretch bg-[oklch(0.1_0.015_260)] font-sans text-ink overflow-hidden">
+      <div className="w-full max-w-[480px] h-full relative bg-surface flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.5)]">
       {screen === 'onboarding' && (
         <OnboardingScreen
           onEnterChat={() => setScreen('chat')}
@@ -120,6 +121,7 @@ function App() {
           setScreen('settings')
         }}
       />
+      </div>
     </div>
   )
 }

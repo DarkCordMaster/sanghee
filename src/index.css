@@ -1,1 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
+
+/*
+ * ui_sample/상희.dc.html 목업에서 쓰인 oklch 팔레트를 Tailwind v4 커스텀 테마 토큰으로
+ * 그대로 옮김. 컴포넌트에서 bg-teal, text-teal/50 같은 유틸리티 클래스로 쓰기 위함
+ * (Tailwind v4는 /숫자 opacity modifier를 테마 색상에 자동으로 적용해줌).
+ */
+@theme {
+  --font-display: 'Unbounded', sans-serif;
+  --font-sans: 'Manrope', sans-serif;
+
+  --color-bg: oklch(0.1 0.015 260);
+  --color-surface: oklch(0.15 0.02 260);
+  --color-surface-2: oklch(0.22 0.02 260);
+  --color-surface-3: oklch(0.2 0.02 260);
+  --color-border: oklch(0.25 0.02 260);
+
+  --color-ink: oklch(0.95 0.01 260);
+  --color-ink-dim: oklch(0.92 0.01 260);
+  --color-ink-soft: oklch(0.85 0.01 260);
+  --color-muted: oklch(0.68 0.02 260);
+  --color-muted-2: oklch(0.65 0.02 260);
+  --color-muted-3: oklch(0.6 0.02 260);
+  --color-faint: oklch(0.58 0.02 260);
+  --color-dim: oklch(0.45 0.02 260);
+
+  --color-teal: oklch(0.7 0.14 190);
+  --color-teal-light: oklch(0.75 0.14 190);
+  --color-teal-bright: oklch(0.78 0.13 190);
+  --color-coral: oklch(0.7 0.17 30);
+  --color-coral-light: oklch(0.78 0.15 30);
+  --color-chip: oklch(0.4 0.02 260);
+
+  --animate-bar-idle: bar-idle 1.4s ease-in-out infinite;
+  --animate-bar-speak: bar-speak 0.6s ease-in-out infinite;
+  --animate-dot-bounce: dot-bounce 1s ease-in-out infinite;
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-banner-in: banner-in 0.3s ease-out;
+  --animate-bubble-in: bubble-in 0.25s ease-out;
+}
+
+@keyframes bar-idle {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(0.6); }
+}
+@keyframes bar-speak {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+@keyframes banner-in {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes bubble-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+}
+
+/* 채팅/사이드바 스크롤 영역에서 스크롤바를 숨기되 스크롤 자체는 유지 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
